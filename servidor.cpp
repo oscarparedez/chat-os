@@ -145,7 +145,7 @@ void *handle_client_connected(void *params)
             }
             if (request_option.compare("PUT_STATUS") == 0) {
                 string status_message = request["body"];
-                int status = stoi(status_message) - 1;
+                int status = stoi(status_message);
                 switch (status)
                 {
                 case 0:
