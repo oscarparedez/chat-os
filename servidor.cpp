@@ -24,7 +24,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-const char* default_ip = "127.0.0.1";
+const char* default_ip = "172.31.41.2";
 map<string, User *> users = {};
 vector<vector<string>> general_chat;
 
@@ -229,6 +229,7 @@ void *handle_client_connected(void *params)
 
                 user_connected = 0;
             }
+            memset(buffer, 0, BUFFER_SIZE);
         }
     }
     printf("Disconnecting user %s from server...", current_user.username.c_str());

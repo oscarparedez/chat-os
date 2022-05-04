@@ -519,9 +519,9 @@ int main(int argc, char *argv[])
 
         case 3:
             {
-            printf("1.  Activo: \n");
-            printf("2. Inactivo: \n");
-            printf("3. Ocupado: \n");
+            printf("0.  Activo: \n");
+            printf("1. Inactivo: \n");
+            printf("2. Ocupado: \n");
         
             string status_to_change;
             cin>>status_to_change;
@@ -532,13 +532,13 @@ int main(int argc, char *argv[])
             response = json::parse(buffer);
             
             if (response["code"] == 200) {
-                if (status_to_change.compare("1") == 0) {
+                if (status_to_change.compare("0") == 0) {
                     cout << username << "'s status has been changed to Activo!"<<endl;
                 }
-                if (status_to_change.compare("2") == 0) {
+                if (status_to_change.compare("1") == 0) {
                     cout << username << "'s status has been changed to Inactivo!"<<endl;
                 }
-                if (status_to_change.compare("3") == 0) {
+                if (status_to_change.compare("2") == 0) {
                     cout << username << "'s status has been changed to Ocupado!"<<endl;
                 }
             } else {
