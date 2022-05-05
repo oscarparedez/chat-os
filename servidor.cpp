@@ -24,7 +24,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-const char* default_ip = "127.0.0.1";
+const char* default_ip = "172.31.41.2";
 map<string, User *> users = {};
 vector<vector<string>> general_chat;
 
@@ -55,49 +55,9 @@ void activity_check() {
     }
 }
 
-void error(const char *msg)
-{
-    perror(msg);
-    exit(1);
-}
-
-// void send_response(int socket, string sender, string message, Payload_PayloadFlag flag, int code, char *buffer)
-// {
-//     string binary;
-//     Payload *response = new Payload();
-//     response->set_sender(sender);
-//     response->set_message(message);
-//     response->set_code(code);
-//     response->set_flag(flag);
-
-//     response->SerializeToString(&binary);
-
-//     strcpy(buffer, binary.c_str());
-//     send(socket, buffer, binary.size() + 1, 0);
-//     printf("SENDING RESPONSE TO %s...\n", response->sender().c_str());
-// }
-
-/* void send_error(int socket, string message)
-{
-    string binary;
-    Payload *error_payload = new Payload();
-    error_payload->set_sender("server");
-    error_payload->set_message(message);
-    error_payload->set_code(500);
-    error_payload->SerializeToString(&binary);
-
-    char buffer[binary.size() + 1];
-    strcpy(buffer, binary.c_str());
-    int sent = send(socket, buffer, sizeof buffer, 0);
-    if (sent == 0)
-    {
-        fprintf(stderr, "ERROR sending response to current client\n");
-    }
-} */
 
 void *handle_client_connected(void *params)
 {
-    cout<<"HELLO FROM SERVER";
     char buffer[BUFFER_SIZE];
     User current_user;
     User *new_user = (User *)params;
@@ -185,7 +145,7 @@ void *handle_client_connected(void *params)
             }
             if (request_option.compare("PUT_STATUS") == 0) {
                 string status_message = request["body"];
-                int status = stoi(status_message) - 1;
+                int status = stoi(status_message);
                 switch (status)
                 {
                 case 0:
@@ -250,7 +210,22 @@ void *handle_client_connected(void *params)
                     response["body"] = general_chat;
                 } else {
                     User *user = users[chat_identifier];
-                    response["body"] = user->inbox_messages;
+                    vector<vector<string>> ms;
+                    for(vector<string> m : user->inbox_messages) {
+                        string s_m = m[1];
+                        cout<<s_m<<chat_identifier<<endl;
+                        if (s_m.compare(chat_identifier) == 0) {
+                            ms.push_back(m);
+                        }
+                    }
+                    for(vector<string> m : current_user.inbox_messages) {
+                        string s_m = m[1];
+                        cout<<s_m<<chat_identifier<<endl;
+                        if (s_m.compare(chat_identifier) == 0) {
+                            ms.push_back(m);
+                        }
+                    }
+                    response["body"] = ms;
                 }
 
                 string parsed_response = response.dump();
@@ -269,6 +244,7 @@ void *handle_client_connected(void *params)
 
                 user_connected = 0;
             }
+            memset(buffer, 0, BUFFER_SIZE);
         }
     }
     printf("Disconnecting user %s from server...", current_user.username.c_str());

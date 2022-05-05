@@ -40,6 +40,7 @@ void *listen(void *args){
 
         json response;
         char buffer[BUFFER_SIZE];
+        memset(buffer, 0, BUFFER_SIZE);
         int received_message = recv(*(int *)args, buffer, BUFFER_SIZE, 0);
         response = json::parse(buffer);
         
@@ -97,6 +98,7 @@ void send_message_to_server(string username, string ip, int flag, string message
     time_t server_time;
     time(&server_time);
     string serialized_message;
+    memset(buffer, 0, BUFFER_SIZE);
 
     switch (flag)
     {
@@ -291,10 +293,12 @@ int main(int argc, char *argv[])
 
     strcpy(buffer, parsed_request.c_str());
     send(socket_fd, buffer, parsed_request.size() + 1, 0);
-
+    memset(buffer, 0, BUFFER_SIZE);
 	recv(socket_fd, buffer, BUFFER_SIZE, 0);
-
+    cout<<"cara nalga: "<<buffer<<endl;
+    
     response = json::parse(buffer);
+    
 
     int code = response["code"];
     if (code != 200) {
@@ -339,13 +343,15 @@ int main(int argc, char *argv[])
                     if (option2.compare("1") == 0) {
                         sleep(1);
                         send_message_to_server(username, server_ip, 10, "", "", buffer, socket_fd);
-
+                        memset(buffer, 0, BUFFER_SIZE);
                         recv(socket_fd, buffer, BUFFER_SIZE, 0);
+                        cout<<buffer<<endl;
                         response = json::parse(buffer);
 
                         string responseType = response["response"];
 
                         if (responseType.compare("NEW_MESSAGE") == 0) {
+                            memset(buffer, 0, BUFFER_SIZE);
                             recv(socket_fd, buffer, BUFFER_SIZE, 0);
                             response = json::parse(buffer);
                         }
@@ -400,6 +406,7 @@ int main(int argc, char *argv[])
                                 else {
                                     send_message_to_server(username, server_ip, 1,
                                     message, "", buffer, socket_fd);
+                                    memset(buffer, 0, BUFFER_SIZE);
                                     recv(socket_fd, buffer, BUFFER_SIZE, 0);
 
                                     response = json::parse(buffer);
@@ -431,41 +438,29 @@ int main(int argc, char *argv[])
                         cin>>option2;
                         if (option2.compare("1") == 0) {
                             sleep(1);
-                            send_message_to_server(username, server_ip, 11, "", username, buffer, socket_fd);
-
+                            send_message_to_server(username, server_ip, 11, "", user_receiver, buffer, socket_fd);
+                        memset(buffer, 0, BUFFER_SIZE);
                         recv(socket_fd, buffer, BUFFER_SIZE, 0);
                         response = json::parse(buffer);
 
                         string responseType = response["response"];
 
                         if (responseType.compare("NEW_MESSAGE") == 0) {
+                            memset(buffer, 0, BUFFER_SIZE);
                             recv(socket_fd, buffer, BUFFER_SIZE, 0);
                             response = json::parse(buffer);
-                            cout << "ENTERS IF"<<endl;
                         }
                         if (response["body"].empty() == 0) {
                             for (int i = 0; i<response["body"].size(); i++)
                             {
                                 cout << response["body"][i] << endl;
-                                cout << "Message from " << response["body"][i][1] << " to all at " << response["body"][i][2] << ": "<< endl;
+                                cout << "Message from " << response["body"][i][1] << " to me" << response["body"][i][2] << ": "<< endl;
                                 cout << response["body"][i][0]<< endl;
                                 printf("%s", "\n\n");
                             }
                         } else {
                             // cout << "gen chat chat is empty" << endl;
                         }
-                            // recv(socket_fd, buffer, BUFFER_SIZE, 0);
-
-                            // response = json::parse(buffer);
-
-                            // if (response["body"].empty() == 0) {
-                            //     for (int i; i<response["body"].size(); i++)
-                            //     {
-                            //         cout << "Message from " << response["body"][i][1] << " to "<< user_receiver <<" at " << response["body"][i][2] << ": "<< endl;
-                            //         cout << response["body"][i][0]<< endl;
-                            //         printf("%s", "\n\n");
-                            //     }
-                            // }
 
                             priv_chat_temp = response;
 
@@ -504,7 +499,7 @@ int main(int argc, char *argv[])
                                     else {
                                         send_message_to_server(username, server_ip, 2,
                                         message, user_receiver, buffer, socket_fd);
-
+                                        memset(buffer, 0, BUFFER_SIZE);
                                         recv(socket_fd, buffer, BUFFER_SIZE, 0);
 
                                         response = json::parse(buffer);
@@ -519,26 +514,27 @@ int main(int argc, char *argv[])
 
         case 3:
             {
-            printf("1.  Activo: \n");
-            printf("2. Inactivo: \n");
-            printf("3. Ocupado: \n");
+            printf("0.  Activo: \n");
+            printf("1. Inactivo: \n");
+            printf("2. Ocupado: \n");
         
             string status_to_change;
             cin>>status_to_change;
 
             send_message_to_server(username, server_ip, 3, status_to_change, "", buffer, socket_fd);
+            memset(buffer, 0, BUFFER_SIZE);
             recv(socket_fd, buffer, BUFFER_SIZE, 0);
 
             response = json::parse(buffer);
             
             if (response["code"] == 200) {
-                if (status_to_change.compare("1") == 0) {
+                if (status_to_change.compare("0") == 0) {
                     cout << username << "'s status has been changed to Activo!"<<endl;
                 }
-                if (status_to_change.compare("2") == 0) {
+                if (status_to_change.compare("1") == 0) {
                     cout << username << "'s status has been changed to Inactivo!"<<endl;
                 }
-                if (status_to_change.compare("3") == 0) {
+                if (status_to_change.compare("2") == 0) {
                     cout << username << "'s status has been changed to Ocupado!"<<endl;
                 }
             } else {
@@ -552,8 +548,9 @@ int main(int argc, char *argv[])
         case 4:
             {
                 send_message_to_server(username, server_ip, 4, "", "", buffer, socket_fd);
+                memset(buffer, 0, BUFFER_SIZE);
                 recv(socket_fd, buffer, BUFFER_SIZE, 0);
-
+                
                 response = json::parse(buffer);
 
                 if (response["code"] == 200) {
@@ -577,6 +574,7 @@ int main(int argc, char *argv[])
                         break;
                     } else {
                         send_message_to_server(username, server_ip, 5,user, "", buffer, socket_fd);
+                        memset(buffer, 0, BUFFER_SIZE);
                         recv(socket_fd, buffer, BUFFER_SIZE, 0);
 
                         if (response["code"] == 200) {
@@ -597,6 +595,7 @@ int main(int argc, char *argv[])
             break;
         case 7:
             send_message_to_server(username, server_ip, 7, "", "", buffer, socket_fd);
+            memset(buffer, 0, BUFFER_SIZE);
             recv(socket_fd, buffer, BUFFER_SIZE, 0);
 
             response = json::parse(buffer);
